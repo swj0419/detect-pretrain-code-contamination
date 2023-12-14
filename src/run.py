@@ -188,6 +188,10 @@ if __name__ == '__main__':
         dataset = load_dataset(args.data, "ARC-Challenge", split="test")
         data = convert_huggingface_data_to_list_dic(dataset)
         data = process_arc(data)
+    elif args.data == "gsm8k":
+        dataset = load_dataset(args.data, "main", split="test")
+        data = convert_huggingface_data_to_list_dic(dataset)
+        data = process_gsm8k(data)
 
 
 
