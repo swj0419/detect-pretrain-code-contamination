@@ -10,7 +10,6 @@ import matplotlib
 import random
 from ipdb import set_trace as bp
 
-
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
@@ -137,6 +136,16 @@ def process_arc(data):
             continue
         label = choice2label[ex["answerKey"]]
         output = ex["choices"]["text"][label]
+        new_ex["output"] = output
+        new_ex["input"] = ex["question"] + " " + output
+        new_data.append(new_ex)
+    return new_data
+
+def process_gsm8k(data):
+    new_data = []
+    for ex in data:
+        new_ex = {}
+        output = ex["answer"].split('####')[0].strip()
         new_ex["output"] = output
         new_ex["input"] = ex["question"] + " " + output
         new_data.append(new_ex)
