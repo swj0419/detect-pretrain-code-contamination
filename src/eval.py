@@ -9,7 +9,7 @@ from sklearn.metrics import auc, roc_curve
 import matplotlib
 import random
 from ipdb import set_trace as bp
-
+import time
 
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
@@ -105,8 +105,9 @@ def process_truthful_qa(data):
     new_data = []
     for ex in data:
         new_ex = {}
-        label = ex["mc1_targets"]["labels"].index(1)
-        output = ex["mc1_targets"]["choices"][label]
+        label = ex["mc2_targets"]["labels"].index(1)
+        output = ex["mc2_targets"]["choices"][label]
+        # We change to mc2 instead of mc1 as it's those that open llm lead uses. (check about)
         new_ex["output"] = output
         new_ex["input"] = ex["question"] + " " + output
         new_data.append(new_ex)
@@ -139,5 +140,64 @@ def process_arc(data):
         output = ex["choices"]["text"][label]
         new_ex["output"] = output
         new_ex["input"] = ex["question"] + " " + output
+        new_data.append(new_ex)
+    return new_data
+
+def process_gsm8k(data):
+    new_data = []
+    for ex in data:
+        new_ex = {}
+        output = ex["answer"].split('####')[0].strip()
+        new_ex["output"] = output
+        new_ex["input"] = ex["question"] + " " + output
+        new_data.append(new_ex)
+    return new_data
+
+def process_winogrande(data):
+    '''
+    new_data = []
+    for ex in data:
+        new_ex = {}
+        label = int(ex["answer"])
+        output = ex[f"option{label}"]
+        new_ex["output"] = output
+        new_ex["input"] = ex["sentence"] + " " + output
+        new_data.append(new_ex)
+    return new_data
+    '''
+    new_data = []
+    for doc in data:
+        new_doc = {}
+
+        # Convert the answer to a numeric index
+        answer_to_num = {"1": 0, "2": 1}
+        label_idx = answer_to_num[doc["answer"]]
+
+        # Generate options and select the correct one based on label_idx
+        options = [doc["option1"], doc["option2"]]
+        output = options[label_idx]
+
+        # Build the new sentence by inserting the selected option
+        idx = doc["sentence"].index("_")
+        input_sentence = doc["sentence"][:idx] + output + doc["sentence"][idx+1:]
+
+        # Assigning the processed values to the new_doc
+        new_doc["output"] = output
+        new_doc["input"] = input_sentence
+
+        # Append the processed document to new_data
+        new_data.append(new_doc)
+
+    return new_data
+# I'm not sure if that's the correct format for winogrande given how the dataset works.
+
+def process_hellaswag(data):
+    new_data = []
+    for ex in data:
+        new_ex = {}
+        label = int(ex["label"]) # For some reason label is in str and not int?
+        output = ex["endings"][label]
+        new_ex["output"] = output
+        new_ex["input"] = ex["ctx"] + " " + output
         new_data.append(new_ex)
     return new_data
