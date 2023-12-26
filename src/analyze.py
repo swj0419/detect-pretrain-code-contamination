@@ -15,7 +15,9 @@ def analyze_data(data):
         all_rmia.append(score)
         if score < 0.1:
             all_large_1.append(score)
-    print("result < 0.1, %: ", len(all_large_1)/len(all_rmia))
+    result = "result < 0.1, %: ", len(all_large_1)/len(all_rmia)
+    print(result)
+    return result
     # print(f"RMIA mean: {statistics.mean(all_rmia)}")
     # print(f"RMIA std: {statistics.stdev(all_rmia)}")
     # print(f"RMIA min: {min(all_rmia)}")
